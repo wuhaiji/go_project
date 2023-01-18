@@ -17,7 +17,7 @@ func main() {
 	for true {
 		conn, err2 := tcp.Accept()
 		if err2 != nil {
-			fmt.Printf("listen failed ,err:%v\n", err2)
+			fmt.Printf("listen failed conn:%v,err:%v\n", conn, err2)
 			continue
 		}
 		fmt.Printf("收到tcp连接,remote address: %v\n", conn.RemoteAddr())
@@ -32,7 +32,7 @@ func process(conn net.Conn) {
 			panic(err)
 		}
 		if err := recover(); err != nil {
-			fmt.Printf("网路异常 err:%v\n", err)
+			fmt.Printf("网路异常 err:%v remote address%v\n", err, conn.RemoteAddr())
 		}
 	}()
 	for {
@@ -40,6 +40,7 @@ func process(conn net.Conn) {
 		reader := bufio.NewReader(conn)
 		s, err := custom_protocol.Decode(reader)
 		if err == io.EOF {
+			fmt.Printf("收到 eof 断开连接 remote address %v\n", conn.RemoteAddr())
 			break
 		}
 		if err != nil {

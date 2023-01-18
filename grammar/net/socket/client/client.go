@@ -4,30 +4,48 @@ import (
 	"bufio"
 	"errors"
 	"fmt"
+	"grammar/go_id"
 	"grammar/net/socket/custom_protocol"
+	"grammar/util"
 	"io"
 	"net"
 	"os"
+	"runtime"
 	"strings"
+	"sync"
+	"time"
 )
 
+var wg = sync.WaitGroup{}
+
 func main() {
-	TestClient()
+	//
+	for i := 0; i < 10000; i++ {
+		wg.Add(1)
+		go TestClient()
+	}
+	wg.Wait()
+	fmt.Printf("goroutine count %v", runtime.NumGoroutine())
+	time.Sleep(time.Second * 4)
 }
 func TestClient() {
+	fmt.Printf("[%v]start client\n", go_id.GetGoroutineID())
 	conn, err := net.Dial("tcp", "127.0.0.1:9090")
 	fmt.Println("dial tcp 127.0.0.1:9090")
 	if err != nil {
 		panic(err)
 	}
-	defer func(conn net.Conn) {
+
+	fmt.Printf("local address %v \n", conn.LocalAddr())
+	// 关闭连接
+	defer func() {
 		err := conn.Close()
 		if err != nil {
 			panic(err)
 		}
-	}(conn) // 关闭连接
+	}()
 
-re:
+br:
 	for {
 		inputStr, ok := input()
 		switch ok {
@@ -42,7 +60,7 @@ re:
 			}
 			fmt.Println(msg)
 		case io.EOF:
-			break re
+			break br
 		default:
 			panic(err)
 		}
@@ -58,10 +76,11 @@ func input() (string, error) {
 		return "", err
 	}
 	if err != nil {
-		fmt.Printf("user input err:%v\n", err)
+		util.Printlnf("user input err:%v", err)
 		return "", err
 	}
 	inputStr = strings.Trim(inputStr, "\r\n")
+	fmt.Printf("[%v]你的输入是:%v\n", go_id.GetGoroutineID(), inputStr)
 	if strings.ToLower(inputStr) == "q" {
 		fmt.Println("exit...")
 		return "", quitError
@@ -85,3 +104,5 @@ func write(conn net.Conn, inputStr string) {
 		panic(err)
 	}
 }
+
+//

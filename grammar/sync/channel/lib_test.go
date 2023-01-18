@@ -6,6 +6,6 @@ import (
 )
 
 func TestChannelSend(t *testing.T) {
-	var channel = NewChannel[int](0)
+	var channel = NewChannel[int]()
 	fmt.Printf("channel=%v", channel.String())
 }
