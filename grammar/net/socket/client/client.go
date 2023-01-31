@@ -4,9 +4,9 @@ import (
 	"bufio"
 	"errors"
 	"fmt"
+	"grammar/fm"
 	"grammar/go_id"
 	"grammar/net/socket/custom_protocol"
-	"grammar/util"
 	"io"
 	"net"
 	"os"
@@ -76,7 +76,7 @@ func input() (string, error) {
 		return "", err
 	}
 	if err != nil {
-		util.Printlnf("user input err:%v", err)
+		fm.Printlnf("user input err:%v", err)
 		return "", err
 	}
 	inputStr = strings.Trim(inputStr, "\r\n")
